@@ -72,3 +72,4 @@ print("2. No missing values were found in the dataset.")
 print("3. Histograms show skewed distributions in some features like 'MedInc'.")
 print("4. Boxplots indicate potential outliers in 'AveRooms' and 'AveOccup'.")
 print("5. Correlation heatmap shows 'MedInc' has the highest correlation with house prices.")
+jeevan
