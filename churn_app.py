@@ -83,28 +83,5 @@ if uploaded_file is not None:
             sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues', ax=ax)
             st.pyplot(fig)
 
-    # -----------------------------
-    # New Section: Customer Products Lookup
-    # -----------------------------
-    st.subheader("Check Products Purchased by Customer ID")
-    
-    if 'customerID' not in data.columns:
-        st.error("No column named 'customerID' found in the dataset.")
-    else:
-        customer_id = st.text_input("Enter Customer ID to check products purchased:")
-        
-        if customer_id:
-            # Filter the customer
-            customer_data = data[data['customerID'] == customer_id]
-            
-            if customer_data.empty:
-                st.warning("Customer ID not found!")
-            else:
-                if 'TotalProducts' in customer_data.columns:
-                    total_products = customer_data['TotalProducts'].values[0]
-                    st.success(f"Customer {customer_id} purchased {total_products} products.")
-                else:
-                    st.warning("No column named 'TotalProducts' found in the dataset.")
-
 else:
     st.info("Please upload a CSV file to continue.")
