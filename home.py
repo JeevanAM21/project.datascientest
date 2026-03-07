@@ -1,16 +1,18 @@
-import numpy as np
+import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.datasets import fetch_california_housing
 
-# Load California Housing dataset
-data = fetch_california_housing()
+st.set_page_config(page_title="California Housing EDA", layout="wide")
+st.title("California Housing Dataset Exploration")
 
-# Convert to DataFrame
+# Load dataset
+data = fetch_california_housing()
 df = pd.DataFrame(data.data, columns=data.feature_names)
-df['Target'] = data.target  # Adding the target variable (median house value)
-# Table of Meaning of Each Variable
+df['Target'] = data.target
+
+# Variable meaning table
 variable_meaning = {
     "MedInc": "Median income in block group",
     "HouseAge": "Median house age in block group",
@@ -22,53 +24,54 @@ variable_meaning = {
     "Longitude": "Longitude of block group",
     "Target": "Median house value (in $100,000s)"
 }
-
 variable_df = pd.DataFrame(list(variable_meaning.items()), columns=["Feature", "Description"])
-print("\nVariable Meaning Table:")
-print(variable_df)# Basic Data Exploration
-print("\nBasic Information about Dataset:")
-print(df.info())  # Overview of dataset
-print("\nFirst Five Rows of Dataset:")
-print(df.head())  # Display first few rows
-# Summary Statistics
-print("\nSummary Statistics:")
-print(df.describe())  # Summary statistics of dataset
-# Explanation of Summary Statistics
-summary_explanation = """
-The summary statistics table provides key percentiles and other descriptive metrics for each numerical feature:
-- **25% (First Quartile - Q1):** This represe i nts the value below which 25% of the data falls. It helps in understanding the lower bound of typical data values.
-- **50% (Median - Q2):** This is the middle value when the data is sorted. It provides the central tendency of the dataset.
-- **75% (Third Quartile - Q3):** This represents the value below which 75% of the data falls. It helps in identifying the upper bound of typical values in the dataset.
-- These percentiles are useful for detecting skewness, data distribution, and identifying potential outliers (values beyond Q1 - 1.5*IQR or Q3 + 1.5*IQR).
-"""
-print("\nSummary Statistics Explanation:")
-print(summary_explanation)
-# Histograms for distribution of features
-plt.figure(figsize=(12, 8))
-df.hist(figsize=(12, 8), bins=30, edgecolor='black')
-plt.suptitle("Feature Distributions", fontsize=16)
-plt.show()
-# Boxplots for outlier detection
-plt.figure(figsize=(12, 6))
-sns.boxplot(data=df)
-plt.xticks(rotation=45)
-plt.title("Boxplots of Features to Identify Outliers")
-plt.show()
-import matplotlib.pyplot as plt
-# Correlation Matrix
-plt.figure(figsize=(10, 6))
-corr_matrix = df.corr()
-sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt='.2f')
-plt.title("Feature Correlation Heatmap")
-plt.show()
-# Pairplot to analyze feature relationships (only a subset for clarity)
-sns.pairplot(df[['MedInc', 'HouseAge', 'AveRooms', 'Target']], diag_kind='kde')
-plt.show()
 
-# Insights from Data Exploration
-print("\nKey Insights:")
-print("1. The dataset has", df.shape[0], "rows and", df.shape[1], "columns.")
-print("2. No missing values were found in the dataset.")
-print("3. Histograms show skewed distributions in some features like 'MedInc'.")
-print("4. Boxplots indicate potential outliers in 'AveRooms' and 'AveOccup'.")
-print("5. Correlation heatmap shows 'MedInc' has the highest correlation with house prices.")
+st.subheader("Variable Meaning Table")
+st.table(variable_df)
+
+# Basic information
+st.subheader("Dataset Info")
+st.write(df.info())  # Optional: will print some info in console
+st.write("Rows:", df.shape[0], "Columns:", df.shape[1])
+
+st.subheader("First Five Rows")
+st.dataframe(df.head())
+
+# Summary statistics
+st.subheader("Summary Statistics")
+st.dataframe(df.describe())
+
+# Histograms
+st.subheader("Feature Distributions")
+fig, ax = plt.subplots(figsize=(12, 8))
+df.hist(ax=ax, bins=30, edgecolor='black')
+st.pyplot(fig)
+
+# Boxplots
+st.subheader("Boxplots of Features")
+fig2, ax2 = plt.subplots(figsize=(12, 6))
+sns.boxplot(data=df, ax=ax2)
+plt.xticks(rotation=45)
+st.pyplot(fig2)
+
+# Correlation heatmap
+st.subheader("Feature Correlation Heatmap")
+fig3, ax3 = plt.subplots(figsize=(10, 6))
+sns.heatmap(df.corr(), annot=True, cmap='coolwarm', fmt='.2f', ax=ax3)
+st.pyplot(fig3)
+
+# Pairplot (only subset to avoid performance issues)
+st.subheader("Pairplot of Key Features")
+import seaborn as sns
+fig4 = sns.pairplot(df[['MedInc', 'HouseAge', 'AveRooms', 'Target']], diag_kind='kde')
+st.pyplot(fig4.fig)
+
+# Key insights
+st.subheader("Key Insights")
+st.write("""
+1. The dataset has {} rows and {} columns.
+2. No missing values were found.
+3. Some features like 'MedInc' are skewed.
+4. Boxplots show potential outliers in 'AveRooms' and 'AveOccup'.
+5. 'MedInc' has the highest correlation with house prices.
+""".format(df.shape[0], df.shape[1]))
