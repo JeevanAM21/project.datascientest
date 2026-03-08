@@ -24,7 +24,7 @@ st.title("📊 Customer Churn Prediction Dashboard")
 st.markdown("Machine Learning model to predict customer churn")
 
 # -----------------------------
-# Sidebar
+# Sidebar Navigation
 # -----------------------------
 st.sidebar.title("Navigation")
 menu = st.sidebar.radio(
@@ -53,19 +53,24 @@ if uploaded_file is not None:
     col3.metric("Missing Values", data.isnull().sum().sum())
 
     # -----------------------------
-    # Upload Page
+    # Upload Data Page
     # -----------------------------
     if menu == "Upload Data":
 
         st.subheader("Dataset Preview")
         st.dataframe(data.head())
 
+        st.subheader("Dataset Info")
+
         buffer = io.StringIO()
         data.info(buf=buffer)
         st.text(buffer.getvalue())
 
+        st.subheader("Statistical Summary")
+        st.dataframe(data.describe())
+
     # -----------------------------
-    # EDA
+    # EDA Analysis
     # -----------------------------
     elif menu == "EDA Analysis":
 
@@ -73,13 +78,17 @@ if uploaded_file is not None:
 
         col1, col2 = st.columns(2)
 
+        # Churn Distribution
         with col1:
             if 'Churn' in data.columns:
                 st.write("### Churn Distribution")
                 fig, ax = plt.subplots()
                 sns.countplot(x='Churn', data=data, ax=ax)
                 st.pyplot(fig)
+            else:
+                st.warning("No 'Churn' column found")
 
+        # Correlation Heatmap
         with col2:
             st.write("### Correlation Heatmap")
 
@@ -96,6 +105,7 @@ if uploaded_file is not None:
 
         if 'Churn' not in data.columns:
             st.error("Dataset must contain 'Churn' column")
+
         else:
 
             X = pd.get_dummies(data.drop('Churn', axis=1), drop_first=True)
@@ -106,44 +116,79 @@ if uploaded_file is not None:
             )
 
             model = LogisticRegression(max_iter=1000)
-            model.fit(X_train, y_train)
 
-            y_pred = model.predict(X_test)
+            if st.button("Train Model"):
 
-            acc = accuracy_score(y_test, y_pred)
+                model.fit(X_train, y_train)
 
-            st.success(f"Model Accuracy: {acc:.2f}")
+                y_pred = model.predict(X_test)
 
-            st.text("Classification Report")
-            st.text(classification_report(y_test, y_pred))
+                acc = accuracy_score(y_test, y_pred)
 
-            fig, ax = plt.subplots()
-            sns.heatmap(confusion_matrix(y_test, y_pred),
-                        annot=True, fmt='d', cmap="Blues", ax=ax)
+                st.success(f"Model Accuracy: {acc:.2f}")
 
-            st.pyplot(fig)
+                st.subheader("Classification Report")
+                st.text(classification_report(y_test, y_pred))
+
+                st.subheader("Confusion Matrix")
+
+                fig, ax = plt.subplots()
+                sns.heatmap(
+                    confusion_matrix(y_test, y_pred),
+                    annot=True,
+                    fmt='d',
+                    cmap="Blues",
+                    ax=ax
+                )
+                st.pyplot(fig)
 
     # -----------------------------
     # Customer Lookup
     # -----------------------------
     elif menu == "Customer Lookup":
 
-        st.subheader("Customer Details")
+        st.subheader("Customer Search Tool")
 
+        # Search by Customer ID
         if 'customerID' in data.columns:
+
+            st.write("### Search by Customer ID")
 
             customer_id = st.text_input("Enter Customer ID")
 
             if customer_id:
+
                 customer = data[data['customerID'] == customer_id]
 
                 if customer.empty:
                     st.warning("Customer not found")
                 else:
-                    st.write(customer)
+                    st.success("Customer Found")
+                    st.dataframe(customer)
 
         else:
             st.warning("customerID column not found")
+
+        # Search by Row Number
+        st.write("### Search by Row Number")
+
+        max_row = len(data)
+
+        row_number = st.number_input(
+            f"Enter row number (1 - {max_row})",
+            min_value=1,
+            max_value=max_row,
+            step=1
+        )
+
+        if row_number:
+
+            row_index = row_number - 1
+
+            customer_row = data.iloc[row_index]
+
+            st.success(f"Customer Data for Row {row_number}")
+            st.json(customer_row.to_dict())
 
 else:
     st.info("Upload dataset from sidebar to start.")
