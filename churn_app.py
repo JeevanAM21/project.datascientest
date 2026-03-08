@@ -6,126 +6,144 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-import io  # Needed for data.info()
-
-st.set_page_config(page_title="Customer Churn Prediction", layout="wide")
-st.title("Customer Churn Prediction App")
+import io
 
 # -----------------------------
-# File uploader
+# Page Config
 # -----------------------------
-uploaded_file = st.file_uploader("Upload your CSV file", type="csv")
+st.set_page_config(
+    page_title="Customer Churn Dashboard",
+    page_icon="📊",
+    layout="wide"
+)
+
+# -----------------------------
+# Title
+# -----------------------------
+st.title("📊 Customer Churn Prediction Dashboard")
+st.markdown("Machine Learning model to predict customer churn")
+
+# -----------------------------
+# Sidebar
+# -----------------------------
+st.sidebar.title("Navigation")
+menu = st.sidebar.radio(
+    "Go to",
+    ["Upload Data", "EDA Analysis", "Train Model", "Customer Lookup"]
+)
+
+# -----------------------------
+# Upload Dataset
+# -----------------------------
+uploaded_file = st.sidebar.file_uploader("Upload CSV file", type=["csv"])
 
 if uploaded_file is not None:
-    try:
-        # Read the CSV
-        data = pd.read_csv(uploaded_file)
-        
-        # -----------------------------
-        # Dataset preview
-        # -----------------------------
+
+    data = pd.read_csv(uploaded_file)
+
+    # -----------------------------
+    # KPI Metrics
+    # -----------------------------
+    st.subheader("Dataset Overview")
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric("Rows", data.shape[0])
+    col2.metric("Columns", data.shape[1])
+    col3.metric("Missing Values", data.isnull().sum().sum())
+
+    # -----------------------------
+    # Upload Page
+    # -----------------------------
+    if menu == "Upload Data":
+
         st.subheader("Dataset Preview")
         st.dataframe(data.head())
 
-        # -----------------------------
-        # Dataset info
-        # -----------------------------
-        st.subheader("Dataset Info")
         buffer = io.StringIO()
         data.info(buf=buffer)
-        info_str = buffer.getvalue()
-        st.text(info_str)
+        st.text(buffer.getvalue())
 
-        # -----------------------------
-        # Dataset description
-        # -----------------------------
-        st.subheader("Dataset Description")
-        st.write(data.describe())
+    # -----------------------------
+    # EDA
+    # -----------------------------
+    elif menu == "EDA Analysis":
 
-        # -----------------------------
-        # Churn plot
-        # -----------------------------
-        st.subheader("Churn Count Plot")
-        if 'Churn' in data.columns:
-            plt.figure(figsize=(6,4))
-            sns.countplot(x='Churn', data=data)
-            st.pyplot(plt)
-        else:
-            st.warning("No column named 'Churn' found for plotting.")
+        st.subheader("Exploratory Data Analysis")
 
-        # -----------------------------
-        # Model training
-        # -----------------------------
-        if st.checkbox("Train Model"):
-            if 'Churn' not in data.columns:
-                st.error("Cannot train model: 'Churn' column is missing.")
-            else:
-                # Convert categorical columns to dummy variables
-                X = pd.get_dummies(data.drop('Churn', axis=1), drop_first=True)
-                y = data['Churn'].apply(lambda x: 1 if str(x).strip().lower()=='yes' else 0)
+        col1, col2 = st.columns(2)
 
-                # Split data
-                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-
-                # Train model
-                model = LogisticRegression(max_iter=1000)
-                model.fit(X_train, y_train)
-                y_pred = model.predict(X_test)
-
-                # Display metrics
-                st.subheader("Model Performance")
-                st.write("Accuracy:", accuracy_score(y_test, y_pred))
-                st.write("Classification Report:")
-                st.text(classification_report(y_test, y_pred))
-                
-                # Confusion matrix
-                st.write("Confusion Matrix:")
+        with col1:
+            if 'Churn' in data.columns:
+                st.write("### Churn Distribution")
                 fig, ax = plt.subplots()
-                sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues', ax=ax)
+                sns.countplot(x='Churn', data=data, ax=ax)
                 st.pyplot(fig)
 
-        # -----------------------------
-        # Lookup by Customer ID
-        # -----------------------------
-        st.subheader("Check Products Purchased by Customer ID")
-        if 'customerID' not in data.columns:
-            st.warning("No column named 'customerID' found in the dataset.")
+        with col2:
+            st.write("### Correlation Heatmap")
+
+            fig, ax = plt.subplots(figsize=(6,4))
+            sns.heatmap(data.corr(numeric_only=True), cmap="coolwarm", ax=ax)
+            st.pyplot(fig)
+
+    # -----------------------------
+    # Model Training
+    # -----------------------------
+    elif menu == "Train Model":
+
+        st.subheader("Train Machine Learning Model")
+
+        if 'Churn' not in data.columns:
+            st.error("Dataset must contain 'Churn' column")
         else:
-            customer_id = st.text_input("Enter Customer ID to check products purchased:")
-            if customer_id:
-                customer_data = data[data['customerID'] == customer_id]
-                if customer_data.empty:
-                    st.warning("Customer ID not found!")
-                else:
-                    if 'TotalProducts' in customer_data.columns:
-                        total_products = customer_data['TotalProducts'].values[0]
-                        st.success(f"Customer {customer_id} purchased {total_products} products.")
-                    else:
-                        st.warning("No column named 'TotalProducts' found in the dataset.")
 
-        # -----------------------------
-        # Lookup by Row Number
-        # -----------------------------
-        st.subheader("Access Customer by Row Number")
-        max_row = len(data)
-        if max_row > 0:
-            row_number = st.number_input(
-                "Enter a row number to view customer data (1 to {})".format(max_row),
-                min_value=1, max_value=max_row, step=1
+            X = pd.get_dummies(data.drop('Churn', axis=1), drop_first=True)
+            y = data['Churn'].apply(lambda x: 1 if str(x).lower()=="yes" else 0)
+
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.3, random_state=42
             )
-            if row_number:
-                row_index = row_number - 1
-                customer_row = data.iloc[row_index]
-                st.write(f"Customer Data for Row #{row_number}:")
-                st.json(customer_row.to_dict())
 
-                if 'TotalProducts' in data.columns:
-                    st.success(f"Total Products purchased: {customer_row['TotalProducts']}")
+            model = LogisticRegression(max_iter=1000)
+            model.fit(X_train, y_train)
+
+            y_pred = model.predict(X_test)
+
+            acc = accuracy_score(y_test, y_pred)
+
+            st.success(f"Model Accuracy: {acc:.2f}")
+
+            st.text("Classification Report")
+            st.text(classification_report(y_test, y_pred))
+
+            fig, ax = plt.subplots()
+            sns.heatmap(confusion_matrix(y_test, y_pred),
+                        annot=True, fmt='d', cmap="Blues", ax=ax)
+
+            st.pyplot(fig)
+
+    # -----------------------------
+    # Customer Lookup
+    # -----------------------------
+    elif menu == "Customer Lookup":
+
+        st.subheader("Customer Details")
+
+        if 'customerID' in data.columns:
+
+            customer_id = st.text_input("Enter Customer ID")
+
+            if customer_id:
+                customer = data[data['customerID'] == customer_id]
+
+                if customer.empty:
+                    st.warning("Customer not found")
                 else:
-                    st.warning("No column named 'TotalProducts' found in the dataset.")
+                    st.write(customer)
 
-    except Exception as e:
-        st.error(f"An error occurred while processing the file: {e}")
+        else:
+            st.warning("customerID column not found")
 
 else:
-    st.info("Please upload a CSV file to continue.")
+    st.info("Upload dataset from sidebar to start.")
