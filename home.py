@@ -4,15 +4,52 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.datasets import fetch_california_housing
 
-st.set_page_config(page_title="California Housing EDA", layout="wide")
-st.title("California Housing Dataset Exploration")
+# ---------------------------------
+# Page Config
+# ---------------------------------
+st.set_page_config(
+    page_title="California Housing Dashboard",
+    page_icon="🏠",
+    layout="wide"
+)
 
-# Load dataset
-data = fetch_california_housing()
-df = pd.DataFrame(data.data, columns=data.feature_names)
-df['Target'] = data.target
+# ---------------------------------
+# Title
+# ---------------------------------
+st.title("🏠 California Housing Analytics Dashboard")
+st.markdown("Interactive Data Exploration of the California Housing Dataset")
 
-# Variable meaning table
+# ---------------------------------
+# Load Dataset
+# ---------------------------------
+@st.cache_data
+def load_data():
+    data = fetch_california_housing()
+    df = pd.DataFrame(data.data, columns=data.feature_names)
+    df["Target"] = data.target
+    return df
+
+df = load_data()
+
+# ---------------------------------
+# Sidebar Navigation
+# ---------------------------------
+st.sidebar.title("Navigation")
+
+menu = st.sidebar.radio(
+    "Select Page",
+    [
+        "Dataset Overview",
+        "Feature Distribution",
+        "Correlation Analysis",
+        "Pairplot Analysis",
+        "Dataset Table"
+    ]
+)
+
+# ---------------------------------
+# Feature Meaning Table
+# ---------------------------------
 variable_meaning = {
     "MedInc": "Median income in block group",
     "HouseAge": "Median house age in block group",
@@ -24,54 +61,127 @@ variable_meaning = {
     "Longitude": "Longitude of block group",
     "Target": "Median house value (in $100,000s)"
 }
-variable_df = pd.DataFrame(list(variable_meaning.items()), columns=["Feature", "Description"])
 
-st.subheader("Variable Meaning Table")
-st.table(variable_df)
+variable_df = pd.DataFrame(
+    list(variable_meaning.items()),
+    columns=["Feature", "Description"]
+)
 
-# Basic information
-st.subheader("Dataset Info")
-st.write(df.info())  # Optional: will print some info in console
-st.write("Rows:", df.shape[0], "Columns:", df.shape[1])
+# ---------------------------------
+# Dataset Overview
+# ---------------------------------
+if menu == "Dataset Overview":
 
-st.subheader("First Five Rows")
-st.dataframe(df.head())
+    st.header("Dataset Overview")
 
-# Summary statistics
-st.subheader("Summary Statistics")
-st.dataframe(df.describe())
+    col1, col2, col3 = st.columns(3)
 
-# Histograms
-st.subheader("Feature Distributions")
-fig, ax = plt.subplots(figsize=(12, 8))
-df.hist(ax=ax, bins=30, edgecolor='black')
-st.pyplot(fig)
+    col1.metric("Total Rows", df.shape[0])
+    col2.metric("Total Columns", df.shape[1])
+    col3.metric("Missing Values", df.isnull().sum().sum())
 
-# Boxplots
-st.subheader("Boxplots of Features")
-fig2, ax2 = plt.subplots(figsize=(12, 6))
-sns.boxplot(data=df, ax=ax2)
-plt.xticks(rotation=45)
-st.pyplot(fig2)
+    st.subheader("Feature Description")
+    st.dataframe(variable_df)
 
-# Correlation heatmap
-st.subheader("Feature Correlation Heatmap")
-fig3, ax3 = plt.subplots(figsize=(10, 6))
-sns.heatmap(df.corr(), annot=True, cmap='coolwarm', fmt='.2f', ax=ax3)
-st.pyplot(fig3)
+    st.subheader("Summary Statistics")
+    st.dataframe(df.describe())
 
-# Pairplot (only subset to avoid performance issues)
-st.subheader("Pairplot of Key Features")
-import seaborn as sns
-fig4 = sns.pairplot(df[['MedInc', 'HouseAge', 'AveRooms', 'Target']], diag_kind='kde')
-st.pyplot(fig4.fig)
+# ---------------------------------
+# Feature Distribution
+# ---------------------------------
+elif menu == "Feature Distribution":
 
-# Key insights
-st.subheader("Key Insights")
-st.write("""
-1. The dataset has {} rows and {} columns.
-2. No missing values were found.
-3. Some features like 'MedInc' are skewed.
-4. Boxplots show potential outliers in 'AveRooms' and 'AveOccup'.
-5. 'MedInc' has the highest correlation with house prices.
-""".format(df.shape[0], df.shape[1]))
+    st.header("Feature Distribution")
+
+    feature = st.selectbox(
+        "Select Feature",
+        df.columns
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.subheader("Histogram")
+
+        fig, ax = plt.subplots()
+        sns.histplot(df[feature], bins=30, kde=True, ax=ax)
+        st.pyplot(fig)
+
+    with col2:
+
+        st.subheader("Boxplot")
+
+        fig2, ax2 = plt.subplots()
+        sns.boxplot(x=df[feature], ax=ax2)
+        st.pyplot(fig2)
+
+# ---------------------------------
+# Correlation Analysis
+# ---------------------------------
+elif menu == "Correlation Analysis":
+
+    st.header("Feature Correlation Heatmap")
+
+    fig3, ax3 = plt.subplots(figsize=(10,6))
+
+    sns.heatmap(
+        df.corr(),
+        annot=True,
+        cmap="coolwarm",
+        fmt=".2f",
+        ax=ax3
+    )
+
+    st.pyplot(fig3)
+
+# ---------------------------------
+# Pairplot Analysis
+# ---------------------------------
+elif menu == "Pairplot Analysis":
+
+    st.header("Pairplot of Key Features")
+
+    selected_features = st.multiselect(
+        "Select Features",
+        df.columns,
+        default=["MedInc","HouseAge","AveRooms","Target"]
+    )
+
+    if len(selected_features) >= 2:
+
+        pairplot = sns.pairplot(
+            df[selected_features],
+            diag_kind="kde"
+        )
+
+        st.pyplot(pairplot.fig)
+
+# ---------------------------------
+# Dataset Table
+# ---------------------------------
+elif menu == "Dataset Table":
+
+    st.header("Dataset Viewer")
+
+    rows = st.slider(
+        "Select number of rows to display",
+        5,
+        100,
+        10
+    )
+
+    st.dataframe(df.head(rows))
+
+# ---------------------------------
+# Insights Section
+# ---------------------------------
+st.sidebar.markdown("---")
+st.sidebar.subheader("Key Insights")
+
+st.sidebar.write("""
+• Median income strongly affects house prices  
+• Some features show skewed distributions  
+• Outliers appear in AveRooms and AveOccup  
+• Geographic features influence house value  
+""")
