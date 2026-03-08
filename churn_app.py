@@ -78,7 +78,6 @@ if uploaded_file is not None:
 
         col1, col2 = st.columns(2)
 
-        # Churn Distribution
         with col1:
             if 'Churn' in data.columns:
                 st.write("### Churn Distribution")
@@ -88,7 +87,6 @@ if uploaded_file is not None:
             else:
                 st.warning("No 'Churn' column found")
 
-        # Correlation Heatmap
         with col2:
             st.write("### Correlation Heatmap")
 
@@ -143,34 +141,11 @@ if uploaded_file is not None:
                 st.pyplot(fig)
 
     # -----------------------------
-    # Customer Lookup
+    # Customer Lookup (Row Number Only)
     # -----------------------------
     elif menu == "Customer Lookup":
 
-        st.subheader("Customer Search Tool")
-
-        # Search by Customer ID
-        if 'customerID' in data.columns:
-
-            st.write("### Search by Customer ID")
-
-            customer_id = st.text_input("Enter Customer ID")
-
-            if customer_id:
-
-                customer = data[data['customerID'] == customer_id]
-
-                if customer.empty:
-                    st.warning("Customer not found")
-                else:
-                    st.success("Customer Found")
-                    st.dataframe(customer)
-
-        else:
-            st.warning("customerID column not found")
-
-        # Search by Row Number
-        st.write("### Search by Row Number")
+        st.subheader("Customer Search by Row Number")
 
         max_row = len(data)
 
@@ -184,7 +159,6 @@ if uploaded_file is not None:
         if row_number:
 
             row_index = row_number - 1
-
             customer_row = data.iloc[row_index]
 
             st.success(f"Customer Data for Row {row_number}")
