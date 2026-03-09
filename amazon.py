@@ -4,14 +4,20 @@ import random
 
 st.set_page_config(page_title="Amazon Prime Dashboard", layout="wide")
 
-# session state
+# -------------------------
+# SESSION STATE
+# -------------------------
 if "page" not in st.session_state:
     st.session_state.page = "login"
 
 # -------------------------
-# DATA GENERATION
+# AMAZON BACKGROUND
 # -------------------------
+amazon_bg = "https://wallpapers.com/images/hd/amazon-prime-video-logo-portal-5ioemdo56totmacf.jpg"
 
+# -------------------------
+# COUNTRIES
+# -------------------------
 countries = [
 "India","United States","United Kingdom","Canada","Australia",
 "Germany","France","Japan","South Korea","Brazil",
@@ -20,6 +26,9 @@ countries = [
 "Thailand","Indonesia","UAE","South Africa","Turkey"
 ]
 
+# -------------------------
+# FLAGS
+# -------------------------
 flags = {
 "India":"https://flagcdn.com/w80/in.png",
 "United States":"https://flagcdn.com/w80/us.png",
@@ -48,6 +57,9 @@ flags = {
 "Turkey":"https://flagcdn.com/w80/tr.png"
 }
 
+# -------------------------
+# NAMES
+# -------------------------
 names = [
 "Rahul Sharma","Amit Patel","Priya Singh","John Smith","Emma Brown",
 "Akira Tanaka","Carlos Diaz","Maria Lopez","David Miller","Sarah Wilson",
@@ -57,6 +69,9 @@ names = [
 
 years = list(range(2015,2026))
 
+# -------------------------
+# DATASET
+# -------------------------
 data = []
 cid = 1000
 
@@ -76,29 +91,35 @@ df = pd.DataFrame(data,columns=["Customer_ID","Customer_Name","Country","Year","
 # -------------------------
 # LOGIN PAGE
 # -------------------------
-
 if st.session_state.page == "login":
 
-    st.title("Amazon Prime Analytics Login")
+    st.markdown(f"""
+    <div style="
+    background-image:url('{amazon_bg}');
+    background-size:cover;
+    padding:120px;
+    border-radius:10px;
+    text-align:center;
+    color:white;
+    font-size:30px;
+    font-weight:bold;
+    ">
+    Amazon Prime Analytics Login
+    </div>
+    """, unsafe_allow_html=True)
 
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
 
     if st.button("Login"):
 
-        if username == "admin" and password == "amazon":
-
-            st.session_state.page = "country"
-            st.success("Login Successful")
-            st.rerun()
-
-        else:
-            st.error("Invalid Login")
+        # ANY username/password works
+        st.session_state.page = "country"
+        st.rerun()
 
 # -------------------------
 # COUNTRY PAGE
 # -------------------------
-
 elif st.session_state.page == "country":
 
     st.title("Select Country")
@@ -106,7 +127,6 @@ elif st.session_state.page == "country":
     country = st.selectbox("Choose Country", countries)
 
     if st.button("Next"):
-
         st.session_state.country = country
         st.session_state.page = "year"
         st.rerun()
@@ -114,7 +134,6 @@ elif st.session_state.page == "country":
 # -------------------------
 # YEAR PAGE
 # -------------------------
-
 elif st.session_state.page == "year":
 
     st.title(f"Country Selected: {st.session_state.country}")
@@ -122,7 +141,6 @@ elif st.session_state.page == "year":
     year = st.selectbox("Select Year", years)
 
     if st.button("Show Data"):
-
         st.session_state.year = year
         st.session_state.page = "dashboard"
         st.rerun()
@@ -130,13 +148,10 @@ elif st.session_state.page == "year":
 # -------------------------
 # DASHBOARD
 # -------------------------
-
 elif st.session_state.page == "dashboard":
 
     country = st.session_state.country
     year = st.session_state.year
-
-    st.title("Amazon Prime Customer Dashboard")
 
     filtered = df[(df["Country"]==country) & (df["Year"]==year)]
 
@@ -144,6 +159,8 @@ elif st.session_state.page == "dashboard":
     cancelled = filtered[filtered["Status"]=="Cancelled"].shape[0]
 
     flag = flags[country]
+
+    st.title("Amazon Prime Customer Dashboard")
 
     st.image(flag,width=80)
 
