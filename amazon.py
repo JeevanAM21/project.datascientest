@@ -4,11 +4,24 @@ import random
 
 st.set_page_config(page_title="Amazon Prime Dashboard", layout="wide")
 
+# Amazon background
+amazon_bg = "https://wallpapers.com/images/hd/amazon-prime-video-logo-portal-5ioemdo56totmacf.jpg"
+
+# FULL PAGE BACKGROUND
+st.markdown(f"""
+<style>
+.stApp {{
+background-image: url("{amazon_bg}");
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+}}
+</style>
+""", unsafe_allow_html=True)
+
 # Session state
 if "page" not in st.session_state:
     st.session_state.page = "login"
-
-amazon_bg = "https://wallpapers.com/images/hd/amazon-prime-video-logo-portal-5ioemdo56totmacf.jpg"
 
 # Countries
 countries = [
@@ -48,7 +61,6 @@ flags = {
 "Turkey":"https://flagcdn.com/w80/tr.png"
 }
 
-# Names
 names = [
 "Rahul Sharma","Amit Patel","Priya Singh","John Smith","Emma Brown",
 "Akira Tanaka","Carlos Diaz","Maria Lopez","David Miller","Sarah Wilson",
@@ -75,21 +87,10 @@ for year in years:
 
 df=pd.DataFrame(data,columns=["Customer_ID","Customer_Name","Country","Year","Status"])
 
-# ---------------- LOGIN PAGE ----------------
+# LOGIN PAGE
 if st.session_state.page=="login":
 
-    st.markdown(f"""
-    <div style="
-    background-image:url('{amazon_bg}');
-    background-size:cover;
-    padding:150px;
-    text-align:center;
-    color:white;
-    font-size:40px;
-    font-weight:bold;">
-    Amazon Prime Login
-    </div>
-    """,unsafe_allow_html=True)
+    st.title("Amazon Prime Login")
 
     username=st.text_input("Username")
     password=st.text_input("Password",type="password")
@@ -100,7 +101,7 @@ if st.session_state.page=="login":
         st.session_state.year=2025
         st.rerun()
 
-# ---------------- DASHBOARD ----------------
+# DASHBOARD
 elif st.session_state.page=="dashboard":
 
     st.title("Amazon Prime Customer Dashboard")
@@ -120,42 +121,23 @@ elif st.session_state.page=="dashboard":
 
     flag=flags[country]
 
-    # Only one Amazon background image
-    st.markdown(f"""
-    <div style="
-    background-image:url('{amazon_bg}');
-    background-size:cover;
-    padding:50px;
-    border-radius:10px;
-    text-align:center;
-    color:black;
-    font-size:25px;
-    font-weight:bold;
-    text-shadow:1px 1px 4px white;">
-    
-    <img src="{flag}" width="70">
-    
-    <h2>{country} - {year}</h2>
-    
-    Customers Added: {added} <br><br>
-    Customers Cancelled: {cancelled}
-    
-    </div>
-    """,unsafe_allow_html=True)
+    st.image(flag,width=80)
 
-    # Bar chart
-    st.subheader("Customer Analysis")
+    st.header(f"{country} - {year}")
+
+    col1,col2=st.columns(2)
+    col1.metric("Customers Added",added)
+    col2.metric("Customers Cancelled",cancelled)
 
     chart=pd.DataFrame({
         "Status":["Added","Cancelled"],
         "Customers":[added,cancelled]
     })
 
+    st.subheader("Customer Analysis")
     st.bar_chart(chart.set_index("Status"))
 
-    # Table
     st.subheader("Customer Data")
-
     st.dataframe(filtered)
 
     if st.button("Logout"):
