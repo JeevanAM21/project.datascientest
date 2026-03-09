@@ -83,17 +83,20 @@ cancelled = filtered[filtered["Status"]=="Cancelled"].shape[0]
 
 flag_url = flags[country]
 
-# flag background
+# flag background (fixed)
 st.markdown(f"""
 <div style="
 background-image: url('{flag_url}');
-background-size: cover;
-padding:40px;
+background-size: contain;
+background-repeat: no-repeat;
+background-position: center;
+padding:80px;
 border-radius:15px;
 text-align:center;
-font-size:25px;
+font-size:26px;
 font-weight:bold;
 color:black;
+background-color:white;
 ">
 
 <h2>{country} - {year}</h2>
