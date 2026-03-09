@@ -45,7 +45,7 @@ flags = {
 "Turkey":"https://flagcdn.com/w80/tr.png"
 }
 
-# sample names
+# sample customer names
 names = [
 "Rahul Sharma","Amit Patel","Priya Singh","John Smith","Emma Brown",
 "Akira Tanaka","Carlos Diaz","Maria Lopez","David Miller","Sarah Wilson",
@@ -86,7 +86,7 @@ cancelled = filtered[filtered["Status"]=="Cancelled"].shape[0]
 
 flag = flags[country]
 
-# Dashboard card with background image
+# Dashboard card with Amazon background
 st.markdown(f"""
 <div style="
 background-image: url('{amazon_bg}');
@@ -111,6 +111,17 @@ Customers Cancelled: {cancelled}
 </div>
 """, unsafe_allow_html=True)
 
+# Bar Chart Analysis
+st.subheader("Customer Analysis (Added vs Cancelled)")
+
+chart_data = pd.DataFrame({
+"Status": ["Added","Cancelled"],
+"Customers": [added, cancelled]
+})
+
+st.bar_chart(chart_data.set_index("Status"))
+
+# Customer Table
 st.subheader("Customer Data")
 
 st.dataframe(filtered)
