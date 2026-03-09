@@ -4,10 +4,10 @@ import random
 
 st.set_page_config(page_title="Amazon Prime Dashboard", layout="wide")
 
-# Amazon background
+# Amazon background image
 amazon_bg = "https://wallpapers.com/images/hd/amazon-prime-video-logo-portal-5ioemdo56totmacf.jpg"
 
-# Countries
+# 25 countries
 countries = [
 "India","United States","United Kingdom","Canada","Australia",
 "Germany","France","Japan","South Korea","Brazil",
@@ -16,7 +16,7 @@ countries = [
 "Thailand","Indonesia","UAE","South Africa","Turkey"
 ]
 
-# Flags
+# country flags
 flags = {
 "India":"https://flagcdn.com/w80/in.png",
 "United States":"https://flagcdn.com/w80/us.png",
@@ -45,7 +45,7 @@ flags = {
 "Turkey":"https://flagcdn.com/w80/tr.png"
 }
 
-# Names
+# sample names
 names = [
 "Rahul Sharma","Amit Patel","Priya Singh","John Smith","Emma Brown",
 "Akira Tanaka","Carlos Diaz","Maria Lopez","David Miller","Sarah Wilson",
@@ -53,7 +53,7 @@ names = [
 "Lucas Rossi","Liam Johnson","Noah Kim","Mia Chen","Arjun Reddy","Fatima Ali"
 ]
 
-# Generate data
+# generate dataset
 data = []
 years = list(range(2015,2026))
 customer_id = 1000
@@ -73,46 +73,43 @@ df = pd.DataFrame(data, columns=[
 "Customer_ID","Customer_Name","Country","Year","Status"
 ])
 
-st.title("Amazon Prime Customer Analytics")
+st.title("Amazon Prime Customer Analytics (2015–2025)")
 
-# Type country
-country_input = st.text_input("Type Country Name")
+# filters
+country = st.selectbox("Select Country", countries)
+year = st.selectbox("Select Year", years)
 
-if country_input:
+filtered = df[(df["Country"]==country) & (df["Year"]==year)]
 
-    filtered = df[df["Country"].str.lower() == country_input.lower()]
+added = filtered[filtered["Status"]=="Added"].shape[0]
+cancelled = filtered[filtered["Status"]=="Cancelled"].shape[0]
 
-    if not filtered.empty:
+flag = flags[country]
 
-        added = filtered[filtered["Status"]=="Added"].shape[0]
-        cancelled = filtered[filtered["Status"]=="Cancelled"].shape[0]
+# Dashboard card with background image
+st.markdown(f"""
+<div style="
+background-image: url('{amazon_bg}');
+background-size: cover;
+background-position: center;
+padding:60px;
+border-radius:15px;
+color:white;
+text-align:center;
+font-size:26px;
+font-weight:bold;
+">
 
-        flag = flags.get(country_input,"")
+<img src="{flag}" width="70">
 
-        st.markdown(f"""
-        <div style="
-        background-image:url('{amazon_bg}');
-        background-size:cover;
-        padding:60px;
-        border-radius:15px;
-        text-align:center;
-        color:white;
-        font-size:26px;
-        font-weight:bold;
-        ">
+<h2>{country} - {year}</h2>
 
-        <img src="{flag}" width="80">
+Customers Added: {added} <br><br>
+Customers Cancelled: {cancelled}
 
-        <h2>{country_input}</h2>
+</div>
+""", unsafe_allow_html=True)
 
-        Customers Added: {added} <br><br>
-        Customers Cancelled: {cancelled}
+st.subheader("Customer Data")
 
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.subheader("Customer Data")
-        st.dataframe(filtered)
-
-    else:
-        st.warning("Country not found in dataset")
+st.dataframe(filtered)
