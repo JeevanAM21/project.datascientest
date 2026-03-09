@@ -94,10 +94,11 @@ background-size: cover;
 background-position: center;
 padding:60px;
 border-radius:15px;
-color:white;
+color:black;
 text-align:center;
 font-size:26px;
 font-weight:bold;
+text-shadow:1px 1px 4px white;
 ">
 
 <img src="{flag}" width="70">
