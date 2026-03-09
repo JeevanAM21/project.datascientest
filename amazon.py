@@ -5,8 +5,7 @@ import random
 st.set_page_config(page_title="Amazon Prime Dashboard", layout="wide")
 
 # Amazon background
-amazon_bg = "https://wallpapers.com/images/hd/amazon-prime-video-logo-portal-5ioemdo56totmacf.jpg"
-
+amazon_bg = "https://www.google.com/imgres?q=amazon%20prime%20photos&imgurl=https%3A%2F%2Fimages.indianexpress.com%2F2020%2F01%2Famazon-prime-membership.jpg&imgrefurl=https%3A%2F%2Findianexpress.com%2Farticle%2Ftechnology%2Ftech-news-technology%2Famazons-latest-milestone-150-million-prime-members-6244264%2F&docid=yGLjyp80H4uqFM&tbnid=KttKNWiBM-46gM&vet=12ahUKEwjK-of-r5OTAxX8Z_UHHRVdAS0QnPAOegQIIRAB..i&w=759&h=422&hcb=2&ved=2ahUKEwjK-of-r5OTAxX8Z_UHHRVdAS0QnPAOegQIIRAB"
 # FULL PAGE BACKGROUND
 st.markdown(f"""
 <style>
