@@ -4,10 +4,14 @@ import random
 
 st.set_page_config(page_title="Amazon Prime Dashboard", layout="wide")
 
-# Amazon background image
-amazon_bg = "https://wallpapers.com/images/hd/amazon-prime-video-logo-portal-5ioemdo56totmacf.jpg"
+# session state
+if "page" not in st.session_state:
+    st.session_state.page = "login"
 
-# 25 countries
+# -------------------------
+# DATA GENERATION
+# -------------------------
+
 countries = [
 "India","United States","United Kingdom","Canada","Australia",
 "Germany","France","Japan","South Korea","Brazil",
@@ -16,7 +20,6 @@ countries = [
 "Thailand","Indonesia","UAE","South Africa","Turkey"
 ]
 
-# country flags
 flags = {
 "India":"https://flagcdn.com/w80/in.png",
 "United States":"https://flagcdn.com/w80/us.png",
@@ -45,7 +48,6 @@ flags = {
 "Turkey":"https://flagcdn.com/w80/tr.png"
 }
 
-# sample customer names
 names = [
 "Rahul Sharma","Amit Patel","Priya Singh","John Smith","Emma Brown",
 "Akira Tanaka","Carlos Diaz","Maria Lopez","David Miller","Sarah Wilson",
@@ -53,75 +55,119 @@ names = [
 "Lucas Rossi","Liam Johnson","Noah Kim","Mia Chen","Arjun Reddy","Fatima Ali"
 ]
 
-# generate dataset
-data = []
 years = list(range(2015,2026))
-customer_id = 1000
+
+data = []
+cid = 1000
 
 for year in years:
     for i in range(200):
-        customer_id += 1
+        cid += 1
         data.append([
-            f"C{customer_id}",
+            f"C{cid}",
             random.choice(names),
             random.choice(countries),
             year,
             random.choice(["Added","Cancelled"])
         ])
 
-df = pd.DataFrame(data, columns=[
-"Customer_ID","Customer_Name","Country","Year","Status"
-])
+df = pd.DataFrame(data,columns=["Customer_ID","Customer_Name","Country","Year","Status"])
 
-st.title("Amazon Prime Customer Analytics (2015–2025)")
+# -------------------------
+# LOGIN PAGE
+# -------------------------
 
-# filters
-country = st.selectbox("Select Country", countries)
-year = st.selectbox("Select Year", years)
+if st.session_state.page == "login":
 
-filtered = df[(df["Country"]==country) & (df["Year"]==year)]
+    st.title("Amazon Prime Analytics Login")
 
-added = filtered[filtered["Status"]=="Added"].shape[0]
-cancelled = filtered[filtered["Status"]=="Cancelled"].shape[0]
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
 
-flag = flags[country]
+    if st.button("Login"):
 
-# Dashboard card with Amazon background
-st.markdown(f"""
-<div style="
-background-image: url('{amazon_bg}');
-background-size: cover;
-background-position: center;
-padding:60px;
-border-radius:15px;
-color:black;
-text-align:center;
-font-size:26px;
-font-weight:bold;
-text-shadow:1px 1px 4px white;
-">
+        if username == "admin" and password == "amazon":
 
-<img src="{flag}" width="70">
+            st.session_state.page = "country"
+            st.success("Login Successful")
+            st.rerun()
 
-<h2>{country} - {year}</h2>
+        else:
+            st.error("Invalid Login")
 
-Customers Added: {added} <br><br>
-Customers Cancelled: {cancelled}
+# -------------------------
+# COUNTRY PAGE
+# -------------------------
 
-</div>
-""", unsafe_allow_html=True)
+elif st.session_state.page == "country":
 
-# Bar Chart Analysis
-st.subheader("Customer Analysis (Added vs Cancelled)")
+    st.title("Select Country")
 
-chart_data = pd.DataFrame({
-"Status": ["Added","Cancelled"],
-"Customers": [added, cancelled]
-})
+    country = st.selectbox("Choose Country", countries)
 
-st.bar_chart(chart_data.set_index("Status"))
+    if st.button("Next"):
 
-# Customer Table
-st.subheader("Customer Data")
+        st.session_state.country = country
+        st.session_state.page = "year"
+        st.rerun()
 
-st.dataframe(filtered)
+# -------------------------
+# YEAR PAGE
+# -------------------------
+
+elif st.session_state.page == "year":
+
+    st.title(f"Country Selected: {st.session_state.country}")
+
+    year = st.selectbox("Select Year", years)
+
+    if st.button("Show Data"):
+
+        st.session_state.year = year
+        st.session_state.page = "dashboard"
+        st.rerun()
+
+# -------------------------
+# DASHBOARD
+# -------------------------
+
+elif st.session_state.page == "dashboard":
+
+    country = st.session_state.country
+    year = st.session_state.year
+
+    st.title("Amazon Prime Customer Dashboard")
+
+    filtered = df[(df["Country"]==country) & (df["Year"]==year)]
+
+    added = filtered[filtered["Status"]=="Added"].shape[0]
+    cancelled = filtered[filtered["Status"]=="Cancelled"].shape[0]
+
+    flag = flags[country]
+
+    st.image(flag,width=80)
+
+    st.header(f"{country} - {year}")
+
+    col1,col2 = st.columns(2)
+
+    col1.metric("Customers Added",added)
+    col2.metric("Customers Cancelled",cancelled)
+
+    # BAR CHART
+    chart = pd.DataFrame({
+        "Status":["Added","Cancelled"],
+        "Customers":[added,cancelled]
+    })
+
+    st.subheader("Customer Analysis")
+
+    st.bar_chart(chart.set_index("Status"))
+
+    st.subheader("Customer Data")
+
+    st.dataframe(filtered)
+
+    if st.button("Logout"):
+        st.session_state.page = "login"
+        st.rerun()
