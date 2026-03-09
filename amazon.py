@@ -4,20 +4,14 @@ import random
 
 st.set_page_config(page_title="Amazon Prime Dashboard", layout="wide")
 
-# -------------------------
-# SESSION STATE
-# -------------------------
+# session state
 if "page" not in st.session_state:
     st.session_state.page = "login"
 
-# -------------------------
-# AMAZON BACKGROUND
-# -------------------------
+# Amazon background
 amazon_bg = "https://wallpapers.com/images/hd/amazon-prime-video-logo-portal-5ioemdo56totmacf.jpg"
 
-# -------------------------
-# COUNTRIES
-# -------------------------
+# Countries
 countries = [
 "India","United States","United Kingdom","Canada","Australia",
 "Germany","France","Japan","South Korea","Brazil",
@@ -26,9 +20,7 @@ countries = [
 "Thailand","Indonesia","UAE","South Africa","Turkey"
 ]
 
-# -------------------------
-# FLAGS
-# -------------------------
+# Flags
 flags = {
 "India":"https://flagcdn.com/w80/in.png",
 "United States":"https://flagcdn.com/w80/us.png",
@@ -57,9 +49,7 @@ flags = {
 "Turkey":"https://flagcdn.com/w80/tr.png"
 }
 
-# -------------------------
-# NAMES
-# -------------------------
+# Names
 names = [
 "Rahul Sharma","Amit Patel","Priya Singh","John Smith","Emma Brown",
 "Akira Tanaka","Carlos Diaz","Maria Lopez","David Miller","Sarah Wilson",
@@ -69,15 +59,13 @@ names = [
 
 years = list(range(2015,2026))
 
-# -------------------------
-# DATASET
-# -------------------------
-data = []
-cid = 1000
+# Dataset
+data=[]
+cid=1000
 
 for year in years:
     for i in range(200):
-        cid += 1
+        cid+=1
         data.append([
             f"C{cid}",
             random.choice(names),
@@ -86,98 +74,90 @@ for year in years:
             random.choice(["Added","Cancelled"])
         ])
 
-df = pd.DataFrame(data,columns=["Customer_ID","Customer_Name","Country","Year","Status"])
+df=pd.DataFrame(data,columns=["Customer_ID","Customer_Name","Country","Year","Status"])
 
-# -------------------------
-# LOGIN PAGE
-# -------------------------
-if st.session_state.page == "login":
+# ---------------- LOGIN ----------------
+if st.session_state.page=="login":
 
     st.markdown(f"""
     <div style="
     background-image:url('{amazon_bg}');
     background-size:cover;
-    padding:120px;
-    border-radius:10px;
+    padding:150px;
     text-align:center;
     color:white;
-    font-size:30px;
-    font-weight:bold;
-    ">
-    Amazon Prime Analytics Login
+    font-size:40px;
+    font-weight:bold;">
+    Amazon Prime Login
     </div>
-    """, unsafe_allow_html=True)
+    """,unsafe_allow_html=True)
 
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
+    username=st.text_input("Username")
+    password=st.text_input("Password",type="password")
 
     if st.button("Login"):
-
-        # ANY username/password works
-        st.session_state.page = "country"
+        st.session_state.page="dashboard"
+        st.session_state.country="India"
+        st.session_state.year=2025
         st.rerun()
 
-# -------------------------
-# COUNTRY PAGE
-# -------------------------
-elif st.session_state.page == "country":
+# ---------------- DASHBOARD ----------------
+elif st.session_state.page=="dashboard":
 
-    st.title("Select Country")
-
-    country = st.selectbox("Choose Country", countries)
-
-    if st.button("Next"):
-        st.session_state.country = country
-        st.session_state.page = "year"
-        st.rerun()
-
-# -------------------------
-# YEAR PAGE
-# -------------------------
-elif st.session_state.page == "year":
-
-    st.title(f"Country Selected: {st.session_state.country}")
-
-    year = st.selectbox("Select Year", years)
-
-    if st.button("Show Data"):
-        st.session_state.year = year
-        st.session_state.page = "dashboard"
-        st.rerun()
-
-# -------------------------
-# DASHBOARD
-# -------------------------
-elif st.session_state.page == "dashboard":
-
-    country = st.session_state.country
-    year = st.session_state.year
-
-    filtered = df[(df["Country"]==country) & (df["Year"]==year)]
-
-    added = filtered[filtered["Status"]=="Added"].shape[0]
-    cancelled = filtered[filtered["Status"]=="Cancelled"].shape[0]
-
-    flag = flags[country]
+    st.markdown(f"""
+    <div style="
+    background-image:url('{amazon_bg}');
+    background-size:cover;
+    padding:60px;
+    border-radius:15px;">
+    </div>
+    """,unsafe_allow_html=True)
 
     st.title("Amazon Prime Customer Dashboard")
 
-    st.image(flag,width=80)
+    col1,col2=st.columns(2)
 
-    st.header(f"{country} - {year}")
+    country=col1.selectbox("Select Country",countries,index=countries.index(st.session_state.country))
+    year=col2.selectbox("Select Year",years,index=years.index(st.session_state.year))
 
-    col1,col2 = st.columns(2)
+    st.session_state.country=country
+    st.session_state.year=year
 
-    col1.metric("Customers Added",added)
-    col2.metric("Customers Cancelled",cancelled)
+    filtered=df[(df["Country"]==country)&(df["Year"]==year)]
 
-    # BAR CHART
-    chart = pd.DataFrame({
+    added=filtered[filtered["Status"]=="Added"].shape[0]
+    cancelled=filtered[filtered["Status"]=="Cancelled"].shape[0]
+
+    flag=flags[country]
+
+    st.markdown(f"""
+    <div style="
+    background-image:url('{amazon_bg}');
+    background-size:cover;
+    padding:50px;
+    border-radius:10px;
+    text-align:center;
+    color:black;
+    font-size:25px;
+    font-weight:bold;
+    text-shadow:1px 1px 4px white;">
+    
+    <img src="{flag}" width="70">
+    
+    <h2>{country} - {year}</h2>
+    
+    Customers Added: {added} <br><br>
+    Customers Cancelled: {cancelled}
+    
+    </div>
+    """,unsafe_allow_html=True)
+
+    st.subheader("Customer Analysis")
+
+    chart=pd.DataFrame({
         "Status":["Added","Cancelled"],
         "Customers":[added,cancelled]
     })
-
-    st.subheader("Customer Analysis")
 
     st.bar_chart(chart.set_index("Status"))
 
@@ -186,5 +166,5 @@ elif st.session_state.page == "dashboard":
     st.dataframe(filtered)
 
     if st.button("Logout"):
-        st.session_state.page = "login"
+        st.session_state.page="login"
         st.rerun()
