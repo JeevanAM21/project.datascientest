@@ -4,11 +4,10 @@ import random
 
 st.set_page_config(page_title="Amazon Prime Dashboard", layout="wide")
 
-# session state
+# Session state
 if "page" not in st.session_state:
     st.session_state.page = "login"
 
-# Amazon background
 amazon_bg = "https://wallpapers.com/images/hd/amazon-prime-video-logo-portal-5ioemdo56totmacf.jpg"
 
 # Countries
@@ -59,7 +58,7 @@ names = [
 
 years = list(range(2015,2026))
 
-# Dataset
+# Create dataset
 data=[]
 cid=1000
 
@@ -76,7 +75,7 @@ for year in years:
 
 df=pd.DataFrame(data,columns=["Customer_ID","Customer_Name","Country","Year","Status"])
 
-# ---------------- LOGIN ----------------
+# ---------------- LOGIN PAGE ----------------
 if st.session_state.page=="login":
 
     st.markdown(f"""
@@ -104,15 +103,6 @@ if st.session_state.page=="login":
 # ---------------- DASHBOARD ----------------
 elif st.session_state.page=="dashboard":
 
-    st.markdown(f"""
-    <div style="
-    background-image:url('{amazon_bg}');
-    background-size:cover;
-    padding:60px;
-    border-radius:15px;">
-    </div>
-    """,unsafe_allow_html=True)
-
     st.title("Amazon Prime Customer Dashboard")
 
     col1,col2=st.columns(2)
@@ -130,6 +120,7 @@ elif st.session_state.page=="dashboard":
 
     flag=flags[country]
 
+    # Only one Amazon background image
     st.markdown(f"""
     <div style="
     background-image:url('{amazon_bg}');
@@ -152,6 +143,7 @@ elif st.session_state.page=="dashboard":
     </div>
     """,unsafe_allow_html=True)
 
+    # Bar chart
     st.subheader("Customer Analysis")
 
     chart=pd.DataFrame({
@@ -161,6 +153,7 @@ elif st.session_state.page=="dashboard":
 
     st.bar_chart(chart.set_index("Status"))
 
+    # Table
     st.subheader("Customer Data")
 
     st.dataframe(filtered)
