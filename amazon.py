@@ -5,7 +5,7 @@ import random
 st.set_page_config(page_title="Amazon Prime Dashboard", layout="wide")
 
 # Amazon background
-amazon_bg = "https://www.google.com/imgres?q=amazon%20prime%20photos&imgurl=https%3A%2F%2Fimages.indianexpress.com%2F2020%2F01%2Famazon-prime-membership.jpg&imgrefurl=https%3A%2F%2Findianexpress.com%2Farticle%2Ftechnology%2Ftech-news-technology%2Famazons-latest-milestone-150-million-prime-members-6244264%2F&docid=yGLjyp80H4uqFM&tbnid=KttKNWiBM-46gM&vet=12ahUKEwjK-of-r5OTAxX8Z_UHHRVdAS0QnPAOegQIIRAB..i&w=759&h=422&hcb=2&ved=2ahUKEwjK-of-r5OTAxX8Z_UHHRVdAS0QnPAOegQIIRAB"
+amazon_bg = "https://www.google.com/imgres?q=amazon%20prime%20photos&imgurl=https%3A%2F%2Fi.pcmag.com%2Fimagery%2Farticles%2F05qp7E8Z6G2lM79Y6Epl0tl-11.fit_lim.size_1050x.jpg&imgrefurl=https%3A%2F%2Fwww.pcmag.com%2Fhow-to%2Famazon-prime-membership-price-all-the-perks-explained&docid=6bVRlhpGeEjbLM&tbnid=bQJ3sb6f-s9f4M&vet=12ahUKEwjK-of-r5OTAxX8Z_UHHRVdAS0QnPAOegQIIBAB..i&w=1050&h=591&hcb=2&ved=2ahUKEwjK-of-r5OTAxX8Z_UHHRVdAS0QnPAOegQIIBAB"
 # FULL PAGE BACKGROUND
 st.markdown(f"""
 <style>
