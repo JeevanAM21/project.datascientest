@@ -4,22 +4,19 @@ import random
 
 st.set_page_config(page_title="Amazon Prime Dashboard", layout="wide")
 
-# Amazon background image
+# Amazon background
 amazon_bg = "https://wallpapers.com/images/hd/amazon-prime-video-logo-portal-5ioemdo56totmacf.jpg"
 
-# Countries (60)
+# Countries
 countries = [
-"India","United States","United Kingdom","Canada","Australia","Germany","France",
-"Japan","South Korea","Brazil","Mexico","Italy","Spain","Netherlands","Sweden",
-"Norway","Denmark","Switzerland","Singapore","Malaysia","Thailand","Indonesia",
-"UAE","South Africa","Turkey","China","Russia","Argentina","Chile","Colombia",
-"Peru","Poland","Portugal","Greece","Belgium","Austria","Finland","Ireland",
-"New Zealand","Philippines","Vietnam","Pakistan","Bangladesh","Sri Lanka","Nepal",
-"Egypt","Nigeria","Kenya","Morocco","Israel","Qatar","Saudi Arabia","Kuwait",
-"Hungary","Czech Republic","Romania","Slovakia","Bulgaria","Croatia","Serbia"
+"India","United States","United Kingdom","Canada","Australia",
+"Germany","France","Japan","South Korea","Brazil",
+"Mexico","Italy","Spain","Netherlands","Sweden",
+"Norway","Denmark","Switzerland","Singapore","Malaysia",
+"Thailand","Indonesia","UAE","South Africa","Turkey"
 ]
 
-# Country flags (some common ones)
+# Flags
 flags = {
 "India":"https://flagcdn.com/w80/in.png",
 "United States":"https://flagcdn.com/w80/us.png",
@@ -29,16 +26,26 @@ flags = {
 "Germany":"https://flagcdn.com/w80/de.png",
 "France":"https://flagcdn.com/w80/fr.png",
 "Japan":"https://flagcdn.com/w80/jp.png",
-"Brazil":"https://flagcdn.com/w80/br.png",
-"Spain":"https://flagcdn.com/w80/es.png",
-"Italy":"https://flagcdn.com/w80/it.png",
-"Mexico":"https://flagcdn.com/w80/mx.png",
 "South Korea":"https://flagcdn.com/w80/kr.png",
+"Brazil":"https://flagcdn.com/w80/br.png",
+"Mexico":"https://flagcdn.com/w80/mx.png",
+"Italy":"https://flagcdn.com/w80/it.png",
+"Spain":"https://flagcdn.com/w80/es.png",
 "Netherlands":"https://flagcdn.com/w80/nl.png",
-"Sweden":"https://flagcdn.com/w80/se.png"
+"Sweden":"https://flagcdn.com/w80/se.png",
+"Norway":"https://flagcdn.com/w80/no.png",
+"Denmark":"https://flagcdn.com/w80/dk.png",
+"Switzerland":"https://flagcdn.com/w80/ch.png",
+"Singapore":"https://flagcdn.com/w80/sg.png",
+"Malaysia":"https://flagcdn.com/w80/my.png",
+"Thailand":"https://flagcdn.com/w80/th.png",
+"Indonesia":"https://flagcdn.com/w80/id.png",
+"UAE":"https://flagcdn.com/w80/ae.png",
+"South Africa":"https://flagcdn.com/w80/za.png",
+"Turkey":"https://flagcdn.com/w80/tr.png"
 }
 
-# Customer names
+# Names
 names = [
 "Rahul Sharma","Amit Patel","Priya Singh","John Smith","Emma Brown",
 "Akira Tanaka","Carlos Diaz","Maria Lopez","David Miller","Sarah Wilson",
@@ -46,13 +53,13 @@ names = [
 "Lucas Rossi","Liam Johnson","Noah Kim","Mia Chen","Arjun Reddy","Fatima Ali"
 ]
 
-# Generate dataset
+# Generate data
 data = []
 years = list(range(2015,2026))
 customer_id = 1000
 
 for year in years:
-    for i in range(300):
+    for i in range(200):
         customer_id += 1
         data.append([
             f"C{customer_id}",
@@ -66,7 +73,7 @@ df = pd.DataFrame(data, columns=[
 "Customer_ID","Customer_Name","Country","Year","Status"
 ])
 
-st.title("Amazon Prime Customer Analytics (2015–2025)")
+st.title("Amazon Prime Customer Analytics")
 
 # Type country
 country_input = st.text_input("Type Country Name")
@@ -86,12 +93,11 @@ if country_input:
         <div style="
         background-image:url('{amazon_bg}');
         background-size:cover;
-        background-position:center;
         padding:60px;
         border-radius:15px;
         text-align:center;
         color:white;
-        font-size:28px;
+        font-size:26px;
         font-weight:bold;
         ">
 
@@ -109,4 +115,4 @@ if country_input:
         st.dataframe(filtered)
 
     else:
-        st.warning("Country not found")
+        st.warning("Country not found in dataset")
